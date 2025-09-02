@@ -1,0 +1,8 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+- We're using Appwrite.io to integrate authentication, user management and data CRUD.
+- Use the latest docs from https://appwrite.io/docs/references.
+- Use tablesDB for database management https://appwrite.io/docs/references/cloud/client-web/tablesDB.

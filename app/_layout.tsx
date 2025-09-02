@@ -4,10 +4,14 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import '../global.css';
+import 'react-native-url-polyfill/auto';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { AuthProvider, useAuth } from '@/contexts';
+import { AuthModal } from '@/components/auth/AuthModal';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -50,11 +54,27 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          </Stack>
+          <AuthModalWrapper />
+        </ThemeProvider>
+      </AuthProvider>
+    </GestureHandlerRootView>
+  );
+}
+
+function AuthModalWrapper() {
+  const { showAuthModal, setShowAuthModal } = useAuth();
+  
+  return (
+    <AuthModal
+      visible={showAuthModal}
+      onClose={() => setShowAuthModal(false)}
+    />
   );
 }
