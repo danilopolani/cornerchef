@@ -10,3 +10,4 @@ alwaysApply: true
 - Always follow the Expo best practices and don't use custom solutions if not really needed.
 - Always use Expo plugins and modules if possible.
 - Always use Expo CLI to perform operations such as installing dependencies, building the app, etc.
+- If available use npx expo install to install dependencies, e.g. npx expo install react-native-svg.
