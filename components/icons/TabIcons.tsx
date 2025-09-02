@@ -40,3 +40,18 @@ export const ChefHatIcon: React.FC<IconProps> = ({ color = '#000', size = 20 }) 
   </Svg>
 );
 
+// Plus icon for add button
+export const PlusIcon: React.FC<IconProps> = ({ color = '#000', size = 20 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M12 5v14" />
+    <Path d="M5 12h14" />
+  </Svg>
+);
+
+// Search icon
+export const SearchIcon: React.FC<IconProps> = ({ color = '#000', size = 20 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <Path d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" />
+  </Svg>
+);
+

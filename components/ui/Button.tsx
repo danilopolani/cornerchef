@@ -10,6 +10,8 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   className?: string;
+  icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right';
 }
 
 const buttonVariants = {
@@ -48,8 +50,13 @@ export function Button({
   disabled = false,
   loading = false,
   className = '',
+  icon,
+  iconPosition = 'left',
 }: ButtonProps) {
   const isDisabled = disabled || loading;
+
+  const iconColor = variant === 'outline' || variant === 'ghost' ? '#74b781' : 'white';
+  const iconSpacing = 8;
 
   return (
     <TouchableOpacity
@@ -67,10 +74,17 @@ export function Button({
       {loading && (
         <ActivityIndicator 
           size="small" 
-          color={variant === 'outline' || variant === 'ghost' ? '#74b781' : 'white'}
-          style={{ marginRight: 8 }}
+          color={iconColor}
+          style={{ marginRight: iconSpacing }}
         />
       )}
+      
+      {!loading && icon && iconPosition === 'left' && (
+        <View style={{ marginRight: iconSpacing }}>
+          {icon}
+        </View>
+      )}
+      
       <Text
         className={cn(
           'font-semibold text-center',
@@ -80,6 +94,12 @@ export function Button({
       >
         {children}
       </Text>
+      
+      {!loading && icon && iconPosition === 'right' && (
+        <View style={{ marginLeft: iconSpacing }}>
+          {icon}
+        </View>
+      )}
     </TouchableOpacity>
   );
 }

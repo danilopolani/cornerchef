@@ -1,9 +1,9 @@
-import { StyleSheet, Alert } from 'react-native';
+import { Alert } from 'react-native';
 
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 import { useAuth } from '@/contexts';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui';
 
 export default function HomeScreen() {
   const { user, isAuthenticated, logout, requireAuth } = useAuth();
@@ -26,22 +26,22 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to CornerChef</Text>
+    <View className="flex-1 items-center justify-center p-5">
+      <Text className="text-2xl font-bold mb-2.5">Welcome to CornerChef</Text>
       
       {isAuthenticated ? (
-        <View style={styles.userInfo}>
-          <Text style={styles.welcomeText}>Hello, {user?.name}!</Text>
-          <Text style={styles.emailText}>{user?.email}</Text>
+        <View className="items-center mb-2.5">
+          <Text className="text-lg font-semibold text-primary">Hello, {user?.name}!</Text>
+          <Text className="text-sm opacity-70">{user?.email}</Text>
         </View>
       ) : (
-        <Text style={styles.guestText}>Browsing as Guest</Text>
+        <Text className="text-base opacity-60 italic">Browsing as Guest</Text>
       )}
 
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+      <View className="my-8 h-0.5 w-4/5 bg-gray-200 dark:bg-gray-700" />
       
       {/* Test buttons */}
-      <View style={styles.buttonContainer}>
+      <View className="w-full gap-3 mb-5">
         <Button onPress={handleProtectedAction} size="sm">
           🔒 Protected Feature
         </Button>
@@ -57,45 +57,3 @@ export default function HomeScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  userInfo: {
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  welcomeText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#74b781',
-  },
-  emailText: {
-    fontSize: 14,
-    opacity: 0.7,
-  },
-  guestText: {
-    fontSize: 16,
-    opacity: 0.6,
-    fontStyle: 'italic',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-  buttonContainer: {
-    width: '100%',
-    gap: 12,
-    marginBottom: 20,
-  },
-});

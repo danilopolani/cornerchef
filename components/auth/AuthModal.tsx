@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { useAuth } from '@/contexts';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui';
 
 interface AuthModalProps {
   visible: boolean;

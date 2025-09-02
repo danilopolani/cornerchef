@@ -1,32 +1,13 @@
-import { StyleSheet } from 'react-native';
-
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 
 export default function ChefScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Chef</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+    <View className="flex-1 items-center justify-center">
+      <Text className="text-xl font-bold">Chef</Text>
+      <View className="my-8 h-0.5 w-4/5 bg-gray-200 dark:bg-gray-700" />
       <EditScreenInfo path="app/(tabs)/chef.tsx" />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-});
 
