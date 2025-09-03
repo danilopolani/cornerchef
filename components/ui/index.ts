@@ -1,10 +1,11 @@
 /**
  * Unified exports for all UI components
- * This enables cleaner imports: import { Button } from '@/components/ui'
+ * This enables cleaner imports: import { Button, Input, Card } from '@/components/ui'
  */
 
 export { Button } from './Button';
-
-// Future UI component exports can be added here
-// export { Input } from './Input';
-// export { Card } from './Card';
+export { Input } from './Input';
+export { Textarea } from './Textarea';
+export { Label } from './Label';
+export { Badge } from './Badge';
+export { Card, CardHeader, CardTitle, CardContent } from './Card';

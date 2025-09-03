@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { router } from 'expo-router';
 import { Text, View } from '@/components/Themed';
 import { useAuth } from '@/contexts';
 import { Button } from '@/components/ui';
@@ -45,8 +46,7 @@ export default function RecipesScreen() {
   const handleCreateRecipe = () => {
     if (requireAuth()) {
       // User is authenticated - navigate to create recipe form
-      // TODO: Navigate to recipe creation screen
-      Alert.alert('Coming Soon', 'Recipe creation form will be implemented');
+      router.push('/recipes/create');
     }
     // If user is not authenticated, the auth modal will be shown automatically
   };

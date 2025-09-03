@@ -55,3 +55,11 @@ export const SearchIcon: React.FC<IconProps> = ({ color = '#000', size = 20 }) =
   </Svg>
 );
 
+// X icon for remove/close
+export const XIcon: React.FC<IconProps> = ({ color = '#000', size = 20 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M18 6 6 18" />
+    <Path d="m6 6 12 12" />
+  </Svg>
+);
+

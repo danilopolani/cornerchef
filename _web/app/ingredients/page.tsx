@@ -171,8 +171,8 @@ export default function IngredientsPage() {
             onClick={handleExpiringClick}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
               selectedExpirationStatus.includes("expiring")
-                ? "bg-slate-100 dark:bg-slate-800"
-                : "hover:bg-slate-50 dark:hover:bg-slate-900"
+                ? "bg-slate-100"
+                : "hover:bg-slate-50"
             }`}
           >
             {expiringSoonCount === 0 ? (
@@ -191,8 +191,8 @@ export default function IngredientsPage() {
             onClick={handleExpiredClick}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
               selectedExpirationStatus.includes("expired")
-                ? "bg-slate-100 dark:bg-slate-800"
-                : "hover:bg-slate-50 dark:hover:bg-slate-900"
+                ? "bg-slate-100"
+                : "hover:bg-slate-50"
             }`}
           >
             {expiredCount === 0 ? (
