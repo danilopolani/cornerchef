@@ -6,9 +6,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   TextInput,
+  Text,
+  View,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Text, View } from '@/components/Themed';
 import { useAuth } from '@/contexts';
 import {
   Button,
@@ -18,7 +19,7 @@ import {
   Badge,
 } from '@/components/ui';
 import { recipesService } from '@/lib/database';
-import { PlusIcon } from '@/components/icons/TabIcons';
+import { PlusIcon, TrashIcon } from '@/components/Icons';
 import type { Recipe } from '@/lib/types';
 
 interface RecipeFormValues {
@@ -211,12 +212,10 @@ export default function CreateRecipeScreen() {
     >
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="p-4 space-y-10">
-          {/* Basic Information */}
           <View>
-            <Text className="text-lg font-semibold text-gray-900 mb-3">Basic Information</Text>
             <View className="space-y-4">
               <View>
-                <Label>Recipe Name</Label>
+                <Label>Name</Label>
                 <Input
                   value={formData.name}
                   onChangeText={(text) => setFormData({ ...formData, name: text })}
@@ -258,9 +257,9 @@ export default function CreateRecipeScreen() {
 
           {/* Categories */}
           <View>
-            <Text className="text-lg font-semibold text-gray-900 mb-3">Categories</Text>
             <View className="space-y-3">
               <View>
+                <Label>Categories</Label>
                 <Input
                   value={categoryInput}
                   onChangeText={(text) => {
@@ -270,6 +269,7 @@ export default function CreateRecipeScreen() {
                   onSubmitEditing={() => addCategory()}
                   placeholder="Type and press Enter to add"
                   returnKeyType="done"
+                  hint="E.g. Italian, Sweet, Vegan"
                 />
                 {showSuggestions && filteredSuggestions.length > 0 && (
                   <View className="mt-2 border rounded-md bg-white border-gray-300">
@@ -302,32 +302,30 @@ export default function CreateRecipeScreen() {
 
           {/* Ingredients */}
           <View>
-            <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-lg font-semibold text-gray-900">Ingredients</Text>
-              <TouchableOpacity onPress={addIngredient}>
-                <View className="bg-primary rounded-full p-2">
-                  <PlusIcon color="white" size={16} />
-                </View>
-              </TouchableOpacity>
+            <View className="mb-3">
+              <Label>Ingredients</Label>
             </View>
             <View className="space-y-3">
               {ingredients.map((ingredient, index) => (
                 <View key={index} className="flex-row items-center gap-2">
-                  <Input
-                    ref={(el) => {
-                      ingredientRefs.current[index] = el;
-                    }}
-                    value={ingredient}
-                    onChangeText={(text) => updateIngredient(index, text)}
-                    placeholder={`Ingredient ${index + 1}`}
-                    returnKeyType="next"
-                    onSubmitEditing={() => addIngredientAfter(index)}
-                    className="flex-1"
-                  />
+                  <View className="flex-1">
+                    <Input
+                      ref={(el) => {
+                        ingredientRefs.current[index] = el;
+                      }}
+                      value={ingredient}
+                      onChangeText={(text) => updateIngredient(index, text)}
+                      placeholder={`Ingredient ${index + 1}`}
+                      returnKeyType="next"
+                      onSubmitEditing={() => addIngredientAfter(index)}
+                      className="flex-1"
+                      hint={ingredients.length <= 1 ? 'Press Enter to add ingredient' : undefined}
+                    />
+                  </View>
                   {ingredients.length > 1 && (
                     <TouchableOpacity onPress={() => removeIngredient(index)}>
-                      <View className="p-2">
-                        <Text className="text-destructive text-lg">×</Text>
+                      <View className="p-2 flex-grow">
+                        <TrashIcon color="red" size={16} />
                       </View>
                     </TouchableOpacity>
                   )}
@@ -374,7 +372,7 @@ export default function CreateRecipeScreen() {
                     {steps.length > 1 && (
                       <TouchableOpacity onPress={() => removeStep(index)}>
                         <View className="p-2">
-                          <Text className="text-destructive text-lg">×</Text>
+                          <TrashIcon color="red" size={12} />
                         </View>
                       </TouchableOpacity>
                     )}

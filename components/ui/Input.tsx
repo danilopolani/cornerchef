@@ -1,17 +1,16 @@
 import React from 'react';
 import { TextInput, TextInputProps } from 'react-native';
 import { cn } from '@/lib/utils';
-import { Appearance, useColorScheme } from 'react-native';
-
-console.log(Appearance.getColorScheme());
+import { InputHint } from './InputHint';
 
 interface InputProps extends TextInputProps {
   className?: string;
+  hint?: string;
 }
 
 export const Input = React.forwardRef<TextInput, InputProps>(
-  ({ className, ...props }, ref) => {
-    return (
+  ({ className, hint, ...props }, ref) => {
+    return <>
       <TextInput
         ref={ref}
         className={cn(
@@ -31,7 +30,8 @@ export const Input = React.forwardRef<TextInput, InputProps>(
         placeholderTextColor="#9ca3af"
         {...props}
       />
-    );
+      {hint && <InputHint className="mt-2">{hint}</InputHint>}
+    </>;
   }
 );
 

@@ -31,15 +31,15 @@ const buttonTextVariants = {
 };
 
 const buttonSizes = {
-  default: 'py-3 px-6',
-  sm: 'py-2 px-4',
-  lg: 'py-4 px-8',
+  default: 'py-2.5 px-4',
+  sm: 'py-1 px-4',
+  lg: 'py-3 px-8',
 };
 
 const buttonTextSizes = {
-  default: 'text-base',
-  sm: 'text-sm',
-  lg: 'text-lg',
+  default: 'text-sm',
+  sm: 'text-xs',
+  lg: 'text-base',
 };
 
 export function Button({

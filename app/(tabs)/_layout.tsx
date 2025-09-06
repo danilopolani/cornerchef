@@ -6,7 +6,7 @@ import { Pressable } from 'react-native';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
-import { HomeIcon, BookOpenIcon, PackageIcon, ChefHatIcon } from '@/components/icons/TabIcons';
+import { HomeIcon, BookOpenIcon, PackageIcon, ChefHatIcon } from '@/components/Icons';
 
 // SVG Tab Icon component
 function TabBarIcon({ IconComponent, color }: { IconComponent: React.FC<{ color: string; size: number }>; color: string }) {

@@ -102,7 +102,7 @@ export function AuthModal({ visible, onClose }: AuthModalProps) {
       <BottomSheetView style={{ flex: 1, paddingHorizontal: 24, paddingTop: 16, paddingBottom: 32 }}>
         {/* Header */}
         <View className="flex-row justify-between items-center mb-6">
-          <Text className="text-2xl font-bold text-foreground">
+          <Text className="text-xl font-bold text-foreground">
             {isLogin ? 'Welcome Back' : 'Create Account'}
           </Text>
           <TouchableOpacity
@@ -119,7 +119,7 @@ export function AuthModal({ visible, onClose }: AuthModalProps) {
             onPress={() => setIsLogin(true)}
             variant={isLogin ? 'default' : 'ghost'}
             size="sm"
-            className="flex-1 mx-1"
+            className="flex-1 mx-1 py-2"
           >
             Sign In
           </Button>

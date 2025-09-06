@@ -10,7 +10,7 @@ import { Text, View } from '@/components/Themed';
 import { useAuth } from '@/contexts';
 import { Button } from '@/components/ui';
 import { recipesService } from '@/lib/database';
-import { BookOpenIcon, PlusIcon } from '@/components/icons/TabIcons';
+import { BookOpenIcon, PlusIcon } from '@/components/Icons';
 import type { Recipe } from '@/lib/types';
 
 export default function RecipesScreen() {
