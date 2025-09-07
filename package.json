@@ -22,6 +22,8 @@
     "@gorhom/bottom-sheet": "^5.2.4",
     "@legendapp/motion": "^2.4.0",
     "@react-navigation/native": "^7.1.6",
+    "@tanstack/react-form": "^1.19.3",
+    "@tanstack/zod-form-adapter": "^0.42.1",
     "babel-plugin-module-resolver": "^5.0.2",
     "clsx": "^2.1.1",
     "expo": "~53.0.22",
@@ -46,7 +48,8 @@
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "~0.20.0",
     "react-stately": "^3.41.0",
-    "tailwind-variants": "^0.1.20"
+    "tailwind-variants": "^0.1.20",
+    "zod": "^4.1.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

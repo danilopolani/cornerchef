@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ScrollView,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   TextInput,
@@ -19,45 +18,104 @@ import {
   Badge,
 } from '@/components/ui';
 import { recipesService } from '@/lib/database';
-import { PlusIcon, TrashIcon } from '@/components/Icons';
+import { TrashIcon } from '@/components/Icons';
 import type { Recipe } from '@/lib/types';
+import { useForm, revalidateLogic } from '@tanstack/react-form';
+import { z } from 'zod';
 
-interface RecipeFormValues {
-  name: string;
-  description: string;
-  servings: string;
-  cookTime: string;
-  ingredients: string[];
-  steps: string[];
-  categories: string[];
-}
+const recipeSchema = z.object({
+  name: z.string().trim().min(1, 'Recipe name is required'),
+  description: z
+    .union([z.string(), z.undefined()])
+    .transform((v) => (typeof v === 'string' && v.trim() ? v.trim() : undefined)),
+  servings: z.string().optional(),
+  cookTime: z
+    .union([z.string(), z.undefined()])
+    .transform((v) => (typeof v === 'string' && v.trim() ? v.trim() : undefined)),
+  ingredients: z.array(z.string()).optional(),
+  steps: z.array(z.string()).optional(),
+  categories: z.array(z.string()).optional(),
+});
+
+type RecipeFormValues = z.infer<typeof recipeSchema>;
 
 export default function CreateRecipeScreen() {
   const { user, requireAuth } = useAuth();
-  
-  // Redirect if not authenticated
+
   useEffect(() => {
     if (!requireAuth()) {
       router.back();
     }
   }, [requireAuth]);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    servings: '',
-    cookTime: '',
-  });
-
-  const [ingredients, setIngredients] = useState<string[]>(['']);
-  const [steps, setSteps] = useState<string[]>(['']);
+  const scrollRef = useRef<any>(null);
   const ingredientRefs = useRef<Array<TextInput | null>>([]);
   const stepRefs = useRef<Array<TextInput | null>>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  
+  // TanStack Form focus management for React Native
+  const fields = useRef<Array<{ input: TextInput | null; name: string }>>([]);
+  
+  const addField = (input: TextInput | null, name: string, index: number) => {
+    fields.current[index] = { input, name };
+  };
+
+  const [ingredientKeys, setIngredientKeys] = useState<string[]>(['ik-0']);
+  const [stepKeys, setStepKeys] = useState<string[]>(['sk-0']);
+  const makeKey = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
   const [categoryInput, setCategoryInput] = useState('');
   const [categorySuggestions, setCategorySuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Form setup with TanStack Form + Zod
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      description: undefined,
+      servings: undefined,
+      cookTime: undefined,
+      ingredients: [''],
+      steps: [''],
+      categories: [],
+    } as RecipeFormValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: recipeSchema,
+    },
+    onSubmit: async ({ value }) => {
+      if (!user) return;
+      const filteredIngredients = (value.ingredients ?? []).map((i) => i.trim()).filter(Boolean);
+      const filteredSteps = (value.steps ?? []).map((s) => s.trim()).filter(Boolean);
+
+      const recipeData: Omit<Recipe, '$id' | '$createdAt' | '$updatedAt'> = {
+        name: value.name.trim(),
+        description: value.description,
+        servings: value.servings ? parseInt(value.servings, 10) : undefined,
+        cookTime: value.cookTime,
+        ingredients: filteredIngredients,
+        steps: filteredSteps,
+        categories: (value.categories ?? []).filter(Boolean),
+        userId: user.$id!,
+      };
+
+      const created = await recipesService.create(recipeData);
+      router.replace(`/recipes/${created.$id}`);
+    },
+    onSubmitInvalid: ({ formApi }) => {
+      const errorMap = formApi.state.errorMap.onDynamic;
+      if (!errorMap) return;
+
+      // Find first input with error
+      for (const input of fields.current) {
+        if (input?.input && errorMap[input.name as keyof typeof errorMap]) {
+          scrollRef.current?.scrollTo({ y: 0, animated: true });
+          setTimeout(() => input.input?.focus(), 300);
+          break;
+        }
+      }
+    },
+  });
+
 
   // Fetch category suggestions
   useEffect(() => {
@@ -81,174 +139,170 @@ export default function CreateRecipeScreen() {
     fetchCategories();
   }, [user]);
 
-  const filteredSuggestions = categorySuggestions
-    .filter((c) => c.toLowerCase().includes(categoryInput.toLowerCase()))
-    .filter((c) => !selectedCategories.includes(c))
-    .slice(0, 6);
+  const filteredSuggestions = useMemo(() => {
+    const selected = ((form.state.values as unknown as RecipeFormValues).categories ?? []);
+    return categorySuggestions
+      .filter((c) => c.toLowerCase().includes(categoryInput.toLowerCase()))
+      .filter((c) => !selected.includes(c))
+      .slice(0, 6);
+  }, [categoryInput, categorySuggestions, (form.state.values as any).categories]);
 
   // Ingredient management
-  const addIngredient = () => setIngredients((prev) => [...prev, '']);
   const addIngredientAfter = (index: number) => {
-    setIngredients((prev) => {
-      const next = [...prev];
-      next.splice(index + 1, 0, '');
-      return next;
-    });
-    requestAnimationFrame(() => {
+    const values = form.state.values as unknown as RecipeFormValues;
+    const base = values.ingredients ?? [''];
+    const next = [...base];
+    next.splice(index + 1, 0, '');
+    form.setFieldValue('ingredients', next);
+    const nextKeys = [...ingredientKeys];
+    nextKeys.splice(index + 1, 0, makeKey('ik'));
+    setIngredientKeys(nextKeys);
+    setTimeout(() => {
       ingredientRefs.current[index + 1]?.focus?.();
-    });
+    }, 0);
   };
-  const removeIngredient = (index: number) => 
-    setIngredients((prev) => prev.filter((_, i) => i !== index));
-  const updateIngredient = (index: number, value: string) => 
-    setIngredients((prev) => prev.map((v, i) => (i === index ? value : v)));
+
+  const removeIngredient = (index: number) => {
+    const values = form.state.values as unknown as RecipeFormValues;
+    const base = values.ingredients ?? [];
+    const next = base.filter((_, i) => i !== index);
+    form.setFieldValue('ingredients', next.length > 0 ? next : ['']);
+    const nextKeys = ingredientKeys.filter((_, i) => i !== index);
+    setIngredientKeys(nextKeys.length > 0 ? nextKeys : ['ik-0']);
+  };
 
   // Step management
-  const addStep = () => setSteps((prev) => [...prev, '']);
   const addStepAfter = (index: number) => {
-    setSteps((prev) => {
-      const next = [...prev];
-      next.splice(index + 1, 0, '');
-      return next;
-    });
-    requestAnimationFrame(() => {
+    const values = form.state.values as unknown as RecipeFormValues;
+    const base = values.steps ?? [''];
+    const next = [...base];
+    next.splice(index + 1, 0, '');
+    form.setFieldValue('steps', next);
+    const nextKeys = [...stepKeys];
+    nextKeys.splice(index + 1, 0, makeKey('sk'));
+    setStepKeys(nextKeys);
+    setTimeout(() => {
       stepRefs.current[index + 1]?.focus?.();
-    });
+    }, 0);
   };
-  const removeStep = (index: number) => 
-    setSteps((prev) => prev.filter((_, i) => i !== index));
-  const updateStep = (index: number, value: string) => 
-    setSteps((prev) => prev.map((v, i) => (i === index ? value : v)));
+
+  const removeStep = (index: number) => {
+    const values = form.state.values as unknown as RecipeFormValues;
+    const base = values.steps ?? [];
+    const next = base.filter((_, i) => i !== index);
+    form.setFieldValue('steps', next.length > 0 ? next : ['']);
+    const nextKeys = stepKeys.filter((_, i) => i !== index);
+    setStepKeys(nextKeys.length > 0 ? nextKeys : ['sk-0']);
+  };
 
   // Category management
   const addCategory = (value?: string) => {
     const raw = (value ?? categoryInput).trim();
     if (!raw) return;
-    if (!selectedCategories.includes(raw)) {
-      setSelectedCategories((prev) => [...prev, raw]);
+    const selected = (form.state.values as unknown as RecipeFormValues).categories ?? [];
+    if (!selected.includes(raw)) {
+      form.setFieldValue('categories', [...selected, raw]);
     }
     setCategoryInput('');
     setShowSuggestions(false);
   };
 
   const removeCategory = (category: string) => {
-    setSelectedCategories((prev) => prev.filter((c) => c !== category));
-  };
-
-  const handleSubmit = async () => {
-    if (!user) {
-      Alert.alert('Error', 'You must be logged in to create a recipe');
-      return;
-    }
-
-    // Basic validation
-    if (!formData.name.trim()) {
-      Alert.alert('Error', 'Recipe name is required');
-      return;
-    }
-
-    const filteredIngredients = ingredients.filter(i => i.trim());
-    const filteredSteps = steps.filter(s => s.trim());
-
-    if (filteredIngredients.length === 0) {
-      Alert.alert('Error', 'At least one ingredient is required');
-      return;
-    }
-
-    if (filteredSteps.length === 0) {
-      Alert.alert('Error', 'At least one cooking step is required');
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      
-      const recipeData: Omit<Recipe, '$id' | '$createdAt' | '$updatedAt'> = {
-        name: formData.name.trim(),
-        description: formData.description.trim() || undefined,
-        servings: formData.servings ? parseInt(formData.servings) : undefined,
-        cookTime: formData.cookTime.trim() || undefined,
-        ingredients: filteredIngredients,
-        steps: filteredSteps,
-        categories: selectedCategories,
-        userId: user.$id!,
-      };
-
-      await recipesService.create(recipeData);
-      
-      Alert.alert(
-        'Success',
-        'Recipe created successfully!',
-        [
-          {
-            text: 'OK',
-            onPress: () => router.back(),
-          },
-        ]
-      );
-    } catch (error) {
-      console.error('Failed to create recipe:', error);
-      Alert.alert('Error', 'Failed to create recipe. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
+    const selected = (form.state.values as unknown as RecipeFormValues).categories ?? [];
+    form.setFieldValue('categories', selected.filter((c) => c !== category));
   };
 
   const handleCancel = () => {
-    Alert.alert(
-      'Cancel',
-      'Are you sure you want to cancel? All changes will be lost.',
-      [
-        { text: 'Continue Editing', style: 'cancel' },
-        { text: 'Cancel', style: 'destructive', onPress: () => router.back() },
-      ]
-    );
+    router.back();
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       className="flex-1 bg-white"
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false} ref={scrollRef}>
         <View className="p-4 space-y-10">
           <View>
             <View className="space-y-4">
               <View>
                 <Label>Name</Label>
-                <Input
-                  value={formData.name}
-                  onChangeText={(text) => setFormData({ ...formData, name: text })}
-                  placeholder="Enter recipe name"
+                <form.Field
+                  name={'name'}
+                  children={(field) => (
+                    <View>
+                      <Input
+                        ref={(input) => addField(input, field.name, 0)}
+                        value={field.state.value}
+                        onChangeText={field.handleChange}
+                        onBlur={field.handleBlur}
+                        placeholder="Enter recipe name"
+                        className={field.state.meta.errorMap.onDynamic ? 'border-red-500 focus:ring-red-500' : ''}
+                      />
+                      {!!field.state.meta.errorMap.onDynamic && (
+                        <Text className="text-red-500 text-xs mt-1">{
+                          Array.isArray(field.state.meta.errorMap.onDynamic)
+                            ? (field.state.meta.errorMap.onDynamic[0]?.message ?? 'Invalid')
+                            : (field.state.meta.errorMap.onDynamic as unknown as string)
+                        }</Text>
+                      )}
+                    </View>
+                  )}
                 />
               </View>
 
               <View>
                 <Label>Description</Label>
-                <Textarea
-                  value={formData.description}
-                  onChangeText={(text) => setFormData({ ...formData, description: text })}
-                  placeholder="Brief description of the recipe"
-                  rows={3}
+                <form.Field
+                  name={'description'}
+                  children={(field) => (
+                    <View>
+                      <Textarea
+                        ref={(input) => addField(input, field.name, 1)}
+                        value={field.state.value ?? ''}
+                        onChangeText={field.handleChange}
+                        onBlur={field.handleBlur}
+                        placeholder="Brief description of the recipe"
+                        rows={3}
+                        className={field.state.meta.errorMap.onDynamic ? 'border-red-500 focus:ring-red-500' : ''}
+                      />
+                    </View>
+                  )}
                 />
               </View>
 
               <View className="flex-row gap-4">
                 <View className="flex-1">
                   <Label>Servings</Label>
-                  <Input
-                    value={formData.servings}
-                    onChangeText={(text) => setFormData({ ...formData, servings: text })}
-                    placeholder="4"
-                    keyboardType="numeric"
+                  <form.Field
+                    name={'servings'}
+                    children={(field) => (
+                      <Input
+                        ref={(input) => addField(input, field.name, 2)}
+                        value={field.state.value ?? ''}
+                        onChangeText={field.handleChange}
+                        onBlur={field.handleBlur}
+                        placeholder="4"
+                        keyboardType="numeric"
+                        className={field.state.meta.errorMap.onDynamic ? 'border-red-500 focus:ring-red-500' : ''}
+                      />
+                    )}
                   />
                 </View>
                 <View className="flex-1">
                   <Label>Cook Time</Label>
-                  <Input
-                    value={formData.cookTime}
-                    onChangeText={(text) => setFormData({ ...formData, cookTime: text })}
-                    placeholder="30 min"
+                  <form.Field
+                    name={'cookTime'}
+                    children={(field) => (
+                      <Input
+                        ref={(input) => addField(input, field.name, 3)}
+                        value={field.state.value ?? ''}
+                        onChangeText={field.handleChange}
+                        onBlur={field.handleBlur}
+                        placeholder="30 min"
+                        className={field.state.meta.errorMap.onDynamic ? 'border-red-500 focus:ring-red-500' : ''}
+                      />
+                    )}
                   />
                 </View>
               </View>
@@ -286,9 +340,9 @@ export default function CreateRecipeScreen() {
                 )}
               </View>
 
-              {selectedCategories.length > 0 && (
+              {(((form.state.values as unknown as RecipeFormValues).categories?.length ?? 0) > 0) && (
                 <View className="flex-row flex-wrap gap-2">
-                  {selectedCategories.map((category) => (
+                  {((form.state.values as unknown as RecipeFormValues).categories ?? []).map((category) => (
                     <TouchableOpacity key={category} onPress={() => removeCategory(category)}>
                       <Badge variant="secondary" className="px-3 py-1">
                         {`${category} ×`}
@@ -306,23 +360,30 @@ export default function CreateRecipeScreen() {
               <Label>Ingredients</Label>
             </View>
             <View className="space-y-3">
-              {ingredients.map((ingredient, index) => (
-                <View key={index} className="flex-row items-center gap-2">
+              {ingredientKeys.map((_, index) => (
+                <View key={ingredientKeys[index]} className="flex-row items-center gap-2">
                   <View className="flex-1">
-                    <Input
-                      ref={(el) => {
-                        ingredientRefs.current[index] = el;
-                      }}
-                      value={ingredient}
-                      onChangeText={(text) => updateIngredient(index, text)}
-                      placeholder={`Ingredient ${index + 1}`}
-                      returnKeyType="next"
-                      onSubmitEditing={() => addIngredientAfter(index)}
-                      className="flex-1"
-                      hint={ingredients.length <= 1 ? 'Press Enter to add ingredient' : undefined}
+                    <form.Field
+                      name={`ingredients[${index}]`}
+                      children={(field) => (
+                        <Input
+                          ref={(el) => {
+                            ingredientRefs.current[index] = el;
+                            addField(el, `ingredients[${index}]`, 4 + index);
+                          }}
+                          value={field.state.value ?? ''}
+                          onChangeText={field.handleChange}
+                          onBlur={field.handleBlur}
+                          placeholder={`Ingredient ${index + 1}`}
+                          returnKeyType="next"
+                          onSubmitEditing={() => addIngredientAfter(index)}
+                          className={`flex-1 ${field.state.meta.errorMap.onDynamic ? 'border-red-500 focus:ring-red-500' : ''}`}
+                          hint={(ingredientKeys.length <= 1) ? 'Press Enter to add ingredient' : undefined}
+                        />
+                      )}
                     />
                   </View>
-                  {ingredients.length > 1 && (
+                  {(ingredientKeys.length > 1) && (
                     <TouchableOpacity onPress={() => removeIngredient(index)}>
                       <View className="p-2 flex-grow">
                         <TrashIcon color="red" size={16} />
@@ -336,40 +397,41 @@ export default function CreateRecipeScreen() {
 
           {/* Cooking Steps */}
           <View>
-            <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-lg font-semibold text-gray-900">Cooking Steps</Text>
-              <TouchableOpacity onPress={addStep}>
-                <View className="bg-primary rounded-full p-2">
-                  <PlusIcon color="white" size={16} />
-                </View>
-              </TouchableOpacity>
+            <View className="mb-3">
+              <Label>Cooking Steps</Label>
             </View>
             <View className="space-y-3">
-              {steps.map((step, index) => (
-                <View key={index} className="flex-row items-start gap-2">
+              {stepKeys.map((_, index) => (
+                <View key={stepKeys[index]} className="flex-row items-start gap-2">
                   <View className="bg-primary rounded-full w-6 h-6 items-center justify-center mt-1">
                     <Text className="text-primary-foreground text-xs font-medium">
                       {index + 1}
                     </Text>
                   </View>
                   <View className="flex-1 flex-row items-start gap-2">
-                    <Textarea
-                      ref={(el) => {
-                        stepRefs.current[index] = el as unknown as TextInput | null;
-                      }}
-                      value={step}
-                      onChangeText={(text) => updateStep(index, text)}
-                      placeholder={`Step ${index + 1} instructions`}
-                      rows={2}
-                      className="flex-1"
-                      onKeyPress={(e) => {
-                        // Add next step on Enter
-                        if (e.nativeEvent.key === 'Enter' || e.nativeEvent.key === '\n') {
-                          addStepAfter(index);
-                        }
-                      }}
+                    <form.Field
+                      name={`steps[${index}]`}
+                      children={(field) => (
+                        <Textarea
+                          ref={(el) => {
+                            stepRefs.current[index] = el as unknown as TextInput | null;
+                            addField(el as unknown as TextInput | null, `steps[${index}]`, 100 + index);
+                          }}
+                          value={field.state.value ?? ''}
+                          onChangeText={field.handleChange}
+                          onBlur={field.handleBlur}
+                          placeholder={`Step ${index + 1} instructions`}
+                          rows={2}
+                          className={`flex-1 ${field.state.meta.errorMap.onDynamic ? 'border-red-500 focus:ring-red-500' : ''}`}
+                          onKeyPress={(e) => {
+                            if (e.nativeEvent.key === 'Enter' || e.nativeEvent.key === '\n') {
+                              addStepAfter(index);
+                            }
+                          }}
+                        />
+                      )}
                     />
-                    {steps.length > 1 && (
+                    {(stepKeys.length > 1) && (
                       <TouchableOpacity onPress={() => removeStep(index)}>
                         <View className="p-2">
                           <TrashIcon color="red" size={12} />
@@ -388,15 +450,15 @@ export default function CreateRecipeScreen() {
               variant="outline"
               onPress={handleCancel}
               className="flex-1"
-              disabled={isSubmitting}
+              disabled={form.state.isSubmitting}
             >
               Cancel
             </Button>
             <Button
-              onPress={handleSubmit}
+              onPress={() => form.handleSubmit()}
               className="flex-1"
-              loading={isSubmitting}
-              disabled={isSubmitting}
+              loading={form.state.isSubmitting}
+              disabled={form.state.isSubmitting}
             >
               Create Recipe
             </Button>
