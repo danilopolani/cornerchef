@@ -89,7 +89,7 @@ export default function RecipesScreen() {
     <TouchableOpacity 
       key={recipe.$id} 
       className="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200"
-      onPress={() => router.push(`/recipes/${recipe.$id}`)}
+      onPress={() => router.push(`/(tabs)/recipes/${recipe.$id}`)}
     >
       <View className="flex-1">
         <Text className="text-lg font-semibold text-gray-800 mb-1">{recipe.name}</Text>
@@ -151,6 +151,3 @@ export default function RecipesScreen() {
     </View>
   );
 }
-
-
-

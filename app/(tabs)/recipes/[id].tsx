@@ -4,6 +4,7 @@ import { ScrollView, View, Text, ActivityIndicator, TouchableOpacity, Alert } fr
 import { recipesService } from '@/lib/database';
 import type { Recipe } from '@/lib/types';
 import { Button } from '@/components/ui';
+import { ChevronLeftIcon } from '@/components/Icons';
 
 export default function RecipeViewScreen() {
   const params = useLocalSearchParams<{ id: string }>();
@@ -28,9 +29,21 @@ export default function RecipeViewScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-white justify-center items-center">
-        <ActivityIndicator size="large" color="#74b781" />
-        <Text className="mt-4 text-base text-gray-500">Loading recipe...</Text>
+      <View className="flex-1 bg-white">
+        {/* Custom Header */}
+        <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
+          <TouchableOpacity onPress={() => router.back()} className="flex-row items-center">
+            <ChevronLeftIcon color="#374151" size={24} />
+            <Text className="ml-1 text-base font-medium text-gray-700">Back</Text>
+          </TouchableOpacity>
+          <Text className="text-lg font-semibold text-gray-900">Recipe</Text>
+          <View className="w-16" />
+        </View>
+        
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#74b781" />
+          <Text className="mt-4 text-base text-gray-500">Loading recipe...</Text>
+        </View>
       </View>
     );
   }
@@ -40,8 +53,19 @@ export default function RecipeViewScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-white" showsVerticalScrollIndicator={false}>
-      <View className="p-5 pb-24">
+    <View className="flex-1 bg-white">
+      {/* Custom Header */}
+      <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
+        <TouchableOpacity onPress={() => router.back()} className="flex-row items-center">
+          <ChevronLeftIcon color="#374151" size={24} />
+          <Text className="ml-1 text-base font-medium text-gray-700">Back</Text>
+        </TouchableOpacity>
+        <Text className="text-lg font-semibold text-gray-900">{recipe.name}</Text>
+        <View className="w-16" />
+      </View>
+
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="p-5 pb-24">
         <Text className="text-2xl font-bold text-gray-900 mb-2">{recipe.name}</Text>
         {!!recipe.description && (
           <Text className="text-base text-gray-600 leading-6 mb-4">{recipe.description}</Text>
@@ -88,10 +112,8 @@ export default function RecipeViewScreen() {
           ))}
         </View>
 
-        <Button variant="outline" onPress={() => router.back()}>Back</Button>
-      </View>
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
-
-

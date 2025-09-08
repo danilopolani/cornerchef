@@ -18,7 +18,7 @@ import {
   Badge,
 } from '@/components/ui';
 import { recipesService } from '@/lib/database';
-import { TrashIcon } from '@/components/Icons';
+import { TrashIcon, ChevronLeftIcon } from '@/components/Icons';
 import type { Recipe } from '@/lib/types';
 import { useForm, revalidateLogic } from '@tanstack/react-form';
 import { z } from 'zod';
@@ -99,7 +99,7 @@ export default function CreateRecipeScreen() {
       };
 
       const created = await recipesService.create(recipeData);
-      router.replace(`/recipes/${created.$id}`);
+      router.replace(`/(tabs)/recipes/${created.$id}`);
     },
     onSubmitInvalid: ({ formApi }) => {
       const errorMap = formApi.state.errorMap.onDynamic;
@@ -221,6 +221,20 @@ export default function CreateRecipeScreen() {
       className="flex-1 bg-white"
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
+      {/* Custom Header */}
+      <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
+        <TouchableOpacity onPress={handleCancel} className="flex-row items-center">
+          <ChevronLeftIcon color="#374151" size={24} />
+          <Text className="ml-1 text-base font-medium text-gray-700">Cancel</Text>
+        </TouchableOpacity>
+        <Text className="text-lg font-semibold text-gray-900">New Recipe</Text>
+        <TouchableOpacity onPress={() => form.handleSubmit()} disabled={form.state.isSubmitting}>
+          <Text className={`text-base font-medium ${form.state.isSubmitting ? 'text-gray-400' : 'text-emerald-600'}`}>
+            {form.state.isSubmitting ? 'Saving...' : 'Save'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false} ref={scrollRef}>
         <View className="p-4 space-y-10">
           <View>
@@ -444,25 +458,8 @@ export default function CreateRecipeScreen() {
             </View>
           </View>
 
-          {/* Action Buttons */}
-          <View className="flex-row gap-3 pb-8">
-            <Button
-              variant="outline"
-              onPress={handleCancel}
-              className="flex-1"
-              disabled={form.state.isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              onPress={() => form.handleSubmit()}
-              className="flex-1"
-              loading={form.state.isSubmitting}
-              disabled={form.state.isSubmitting}
-            >
-              Create Recipe
-            </Button>
-          </View>
+          {/* Extra padding for bottom spacing */}
+          <View className="pb-8" />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

@@ -69,3 +69,10 @@ export const TrashIcon: React.FC<IconProps> = ({ color = '#000', size = 20 }) =>
   </Svg>
 );
 
+// ChevronLeft icon for back navigation
+export const ChevronLeftIcon: React.FC<IconProps> = ({ color = '#000', size = 20 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <Path d="m15 18-6-6 6-6" />
+  </Svg>
+);
+
