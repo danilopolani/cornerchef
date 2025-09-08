@@ -59,7 +59,7 @@ export const CardHeader = React.forwardRef<View, CardHeaderProps>(
 
 export const CardTitle: React.FC<CardTitleProps> = ({ className, children }) => {
   return (
-    <Text className={cn('text-lg font-semibold leading-none tracking-tight text-gray-900 dark:text-gray-100', className)}>
+    <Text className={cn('text-lg font-semibold leading-none tracking-tight text-slate-900 dark:text-slate-100', className)}>
       {children}
     </Text>
   );

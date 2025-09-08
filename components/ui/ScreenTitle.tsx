@@ -2,25 +2,21 @@ import React from 'react';
 import { Text, TextProps } from 'react-native';
 import { cn } from '@/lib/utils';
 
-interface LabelProps extends TextProps {
+interface ScreenTitleProps extends TextProps {
   children: React.ReactNode;
   className?: string;
 }
 
-export const Label = React.forwardRef<Text, LabelProps>(
+export const ScreenTitle = React.forwardRef<Text, ScreenTitleProps>(
   ({ className, children, ...props }, ref) => {
     return (
       <Text
         ref={ref}
         className={cn(
-          // Transparent background to avoid blocks
-          'bg-transparent',
           // Typography
-          'text-sm font-medium leading-none mb-1.5',
+          'text-2xl font-bold leading-none mt-2 mb-8',
           // Explicit colors
           'text-slate-900',
-          // Disabled
-          'opacity-100',
           className
         )}
         {...props}
@@ -31,4 +27,4 @@ export const Label = React.forwardRef<Text, LabelProps>(
   }
 );
 
-Label.displayName = 'Label';
+ScreenTitle.displayName = 'ScreenTitle';

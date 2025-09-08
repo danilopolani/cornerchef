@@ -13,6 +13,8 @@ import { Button } from '@/components/ui';
 import { recipesService } from '@/lib/database';
 import { BookOpenIcon, PlusIcon } from '@/components/Icons';
 import type { Recipe } from '@/lib/types';
+import { ScreenTitle } from '@/components/ui/ScreenTitle';
+import { ScreenContent } from '@/components/ui/ScreenContent';
 
 export default function RecipesScreen() {
   const { user, isAuthenticated, requireAuth } = useAuth();
@@ -57,7 +59,7 @@ export default function RecipesScreen() {
       return (
         <View className="flex-1 justify-center items-center px-10">
           <ActivityIndicator size="large" color="#74b781" />
-          <Text className="mt-4 text-base text-gray-500">Loading recipes...</Text>
+          <Text className="mt-4 text-base text-slate-500">Loading recipes...</Text>
         </View>
       );
     }
@@ -65,8 +67,8 @@ export default function RecipesScreen() {
     return (
       <View className="flex-1 justify-center items-center px-10">
         <BookOpenIcon color="#6b7280" size={48} />
-        <Text className="text-lg font-semibold text-gray-800 mt-4 mb-2">No recipes found</Text>
-        <Text className="text-sm text-gray-500 text-center leading-5">
+        <Text className="text-lg font-semibold text-slate-800 mt-4 mb-2">No recipes found</Text>
+        <Text className="text-sm text-slate-500 text-center leading-5">
           {isAuthenticated
             ? 'Create your first recipe to get started'
             : 'Sign in to view and create your recipes'}
@@ -92,18 +94,18 @@ export default function RecipesScreen() {
       onPress={() => router.push(`/(tabs)/recipes/${recipe.$id}`)}
     >
       <View className="flex-1">
-        <Text className="text-lg font-semibold text-gray-800 mb-1">{recipe.name}</Text>
+        <Text className="text-lg font-semibold text-slate-800 mb-1">{recipe.name}</Text>
         {recipe.description && (
-          <Text className="text-sm text-gray-500 mb-2 leading-5" numberOfLines={2}>
+          <Text className="text-sm text-slate-500 mb-2 leading-5" numberOfLines={2}>
             {recipe.description}
           </Text>
         )}
         <View className="flex-row gap-4 mb-2">
           {recipe.cookTime && (
-            <Text className="text-xs text-gray-500">⏱️ {recipe.cookTime}</Text>
+            <Text className="text-xs text-slate-500">⏱️ {recipe.cookTime}</Text>
           )}
           {recipe.servings && (
-            <Text className="text-xs text-gray-500">👥 {recipe.servings} servings</Text>
+            <Text className="text-xs text-slate-500">👥 {recipe.servings} servings</Text>
           )}
         </View>
         {recipe.categories && recipe.categories.length > 0 && (
@@ -114,7 +116,7 @@ export default function RecipesScreen() {
               </View>
             ))}
             {recipe.categories.length > 3 && (
-              <Text className="text-xs text-gray-500 italic">
+              <Text className="text-xs text-slate-500 italic">
                 +{recipe.categories.length - 3} more
               </Text>
             )}
@@ -125,15 +127,15 @@ export default function RecipesScreen() {
   );
 
   return (
-    <View className="flex-1 bg-white">
-      {/* Content starts right away - no redundant header */}
+    <ScreenContent>
+      <ScreenTitle>Recipes</ScreenTitle>
 
       {/* Content */}
       {recipes.length === 0 ? (
         renderEmptyState()
       ) : (
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          <View className="p-5 pb-24">
+          <View className="pb-24">
             {recipes.map(renderRecipeItem)}
           </View>
         </ScrollView>
@@ -148,6 +150,6 @@ export default function RecipesScreen() {
           <PlusIcon color="white" size={16} />
         </TouchableOpacity>
       )}
-    </View>
+    </ScreenContent>
   );
 }

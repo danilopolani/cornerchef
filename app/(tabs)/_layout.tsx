@@ -1,11 +1,5 @@
 import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
-
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { Tabs } from 'expo-router';
 import { HomeIcon, BookOpenIcon, PackageIcon, ChefHatIcon } from '@/components/Icons';
 
 // SVG Tab Icon component
@@ -14,8 +8,6 @@ function TabBarIcon({ IconComponent, color }: { IconComponent: React.FC<{ color:
 }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{

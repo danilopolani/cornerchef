@@ -22,7 +22,7 @@ export const Textarea = React.forwardRef<TextInput, TextareaProps>(
           'border border-gray-300',
           'bg-white',
           // Text colors
-          'text-gray-900',
+          'text-slate-900',
           // Focus styles
           'focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent',
           // Disabled

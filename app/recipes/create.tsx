@@ -225,11 +225,11 @@ export default function CreateRecipeScreen() {
       <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
         <TouchableOpacity onPress={handleCancel} className="flex-row items-center">
           <ChevronLeftIcon color="#374151" size={24} />
-          <Text className="ml-1 text-base font-medium text-gray-700">Cancel</Text>
+          <Text className="ml-1 text-base font-medium text-slate-700">Cancel</Text>
         </TouchableOpacity>
-        <Text className="text-lg font-semibold text-gray-900">New Recipe</Text>
+        <Text className="text-lg font-semibold text-slate-900">New Recipe</Text>
         <TouchableOpacity onPress={() => form.handleSubmit()} disabled={form.state.isSubmitting}>
-          <Text className={`text-base font-medium ${form.state.isSubmitting ? 'text-gray-400' : 'text-emerald-600'}`}>
+          <Text className={`text-base font-medium ${form.state.isSubmitting ? 'text-slate-400' : 'text-emerald-600'}`}>
             {form.state.isSubmitting ? 'Saving...' : 'Save'}
           </Text>
         </TouchableOpacity>

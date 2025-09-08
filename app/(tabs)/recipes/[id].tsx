@@ -5,6 +5,7 @@ import { recipesService } from '@/lib/database';
 import type { Recipe } from '@/lib/types';
 import { Button } from '@/components/ui';
 import { ChevronLeftIcon } from '@/components/Icons';
+import { ScreenContent } from '@/components/ui/ScreenContent';
 
 export default function RecipeViewScreen() {
   const params = useLocalSearchParams<{ id: string }>();
@@ -26,25 +27,24 @@ export default function RecipeViewScreen() {
     };
     load();
   }, [params.id]);
+  
+  const header = (
+    <View className="flex-row items-center gap-1.5 mb-8 -ml-1.5">
+      <TouchableOpacity onPress={() => router.back()} className="flex-row items-center">
+        <ChevronLeftIcon color="#374151" size={24} />
+      </TouchableOpacity>
+      <Text className="text-lg font-bold">{recipe?.name}</Text>
+    </View>
+  );
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-white">
-        {/* Custom Header */}
-        <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
-          <TouchableOpacity onPress={() => router.back()} className="flex-row items-center">
-            <ChevronLeftIcon color="#374151" size={24} />
-            <Text className="ml-1 text-base font-medium text-gray-700">Back</Text>
-          </TouchableOpacity>
-          <Text className="text-lg font-semibold text-gray-900">Recipe</Text>
-          <View className="w-16" />
-        </View>
-        
+      <ScreenContent>
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#74b781" />
-          <Text className="mt-4 text-base text-gray-500">Loading recipe...</Text>
+          <Text className="mt-4 text-base text-slate-500">Loading recipe...</Text>
         </View>
-      </View>
+      </ScreenContent>
     );
   }
 
@@ -53,30 +53,20 @@ export default function RecipeViewScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white">
-      {/* Custom Header */}
-      <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="flex-row items-center">
-          <ChevronLeftIcon color="#374151" size={24} />
-          <Text className="ml-1 text-base font-medium text-gray-700">Back</Text>
-        </TouchableOpacity>
-        <Text className="text-lg font-semibold text-gray-900">{recipe.name}</Text>
-        <View className="w-16" />
-      </View>
-
+    <ScreenContent>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className="p-5 pb-24">
-        <Text className="text-2xl font-bold text-gray-900 mb-2">{recipe.name}</Text>
+        {header}
+
         {!!recipe.description && (
-          <Text className="text-base text-gray-600 leading-6 mb-4">{recipe.description}</Text>
+          <Text className="text-base text-slate-800 leading-6 mb-4">{recipe.description}</Text>
         )}
 
         <View className="flex-row gap-4 mb-4">
           {!!recipe.cookTime && (
-            <Text className="text-sm text-gray-500">⏱️ {recipe.cookTime}</Text>
+            <Text className="text-sm text-slate-500">⏱️ {recipe.cookTime}</Text>
           )}
           {!!recipe.servings && (
-            <Text className="text-sm text-gray-500">👥 {recipe.servings} servings</Text>
+            <Text className="text-sm text-slate-500">👥 {recipe.servings} servings</Text>
           )}
         </View>
 
@@ -91,29 +81,27 @@ export default function RecipeViewScreen() {
         )}
 
         <View className="mb-6">
-          <Text className="text-xl font-semibold text-gray-900 mb-2">Ingredients</Text>
+          <Text className="text-xl font-semibold text-slate-900 mb-2">Ingredients</Text>
           {recipe.ingredients.map((ing, idx) => (
             <View key={idx} className="flex-row items-start gap-2 mb-1">
               <Text className="text-base">•</Text>
-              <Text className="text-base text-gray-800 flex-1">{ing}</Text>
+              <Text className="text-base text-slate-800 flex-1">{ing}</Text>
             </View>
           ))}
         </View>
 
         <View className="mb-10">
-          <Text className="text-xl font-semibold text-gray-900 mb-2">Steps</Text>
+          <Text className="text-xl font-semibold text-slate-900 mb-2">Steps</Text>
           {recipe.steps.map((s, idx) => (
             <View key={idx} className="flex-row items-start gap-3 mb-3">
               <View className="bg-primary rounded-full w-6 h-6 items-center justify-center">
                 <Text className="text-primary-foreground text-xs font-medium">{idx + 1}</Text>
               </View>
-              <Text className="text-base text-gray-800 flex-1 leading-6">{s}</Text>
+              <Text className="text-base text-slate-800 flex-1 leading-6">{s}</Text>
             </View>
           ))}
         </View>
-
-        </View>
       </ScrollView>
-    </View>
+    </ScreenContent>
   );
 }

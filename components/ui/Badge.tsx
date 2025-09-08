@@ -20,9 +20,9 @@ export const Badge = React.forwardRef<View, BadgeProps>(
 
     const textClasses = {
       default: 'text-white',
-      secondary: 'text-gray-900',
+      secondary: 'text-slate-900',
       destructive: 'text-white',
-      outline: 'text-gray-900',
+      outline: 'text-slate-900',
     };
 
     return (
